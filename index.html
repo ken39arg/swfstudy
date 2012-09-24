@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shapeの詳解とSVG変換|SWF研究会#2</title>
+
+    <meta charset='utf-8'>
+    <script src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+    <!-- for offline
+    <script src='html5slides/slides.js'></script>
+    -->
+  </head>
+  
+  <style>
+    .slides.template-default > article:not(.nobackground):not(.biglogo) {
+      background: url(images/kayaclogo.png) 810px 620px no-repeat !important;  
+
+      background-color: white !important;
+    } 
+    .slides.template-default article.biglogo {
+      background: white !important;
+    }
+    p.big {
+      margin-top: 50px;
+      line-height: 65px;
+      font-size: 45px;
+    }
+
+    pre.innertable {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+    table.smaller {
+      font-size: 20px;
+      line-height: 24px;
+      letter-spacing: 0;
+    }
+
+  </style>
+
+  <body style='display: none'>
+
+    <section class='slides layout-regular template-default'>
+      
+      <article class="biglogo">
+        <h1>
+          Shapeの詳解とSVG変換
+        </h1>
+        <h2>
+          @SWF研究会#2 
+        </h2>
+        <p>
+          Kensaku Araga 
+          <br>
+          September 25, 2012
+        </p>
+      </article>
+      
+      <article>
+        <h3>
+          自己紹介
+        </h3>
+        <!--<ul class="build">-->
+        <ul>
+          <li>
+            荒賀 謙作
+          <li>
+            <s> 鎌倉 </s> 横浜方面から来ました <img src="images/kayac_logo.png" height="30">
+          <li>
+            携帯サービスを作って５年(6年目???)
+          <li>
+            携帯サービスを作っている会社には必ず１人はいると言われているSWFのバイナリに詳しい人の１人です
+          <li>
+            <a href="https://github.com/ken39arg/FlashForward" titel="FlashForward">FlashForward</a>というのを作って公開してます
+            <br>
+            が、D社さまのE○GameやG社さまのR○elの出来が良すぎるので...(ry
+        </ul>
+      </article>
+
+      <article>
+        <h3>
+          今日やりたいこと
+        </h3>
+        <q>
+         簡単な1フレームのSWFをベクターデータとして再現できるようになる
+        </q>
+      </article>
+
+      <article>
+        <h3>
+          はじめに
+        </h3>
+        <ul>
+          <li>
+            初心者〜中級者向け
+          <li>
+            バイナリのパースについては触れません
+          <li>
+            SWFのパースは下記のツールを利用 
+            <ul>
+              <li>
+                swfdump (<a href="http://www.swftools.org/" title="swftools">SWFTools</a>)
+            </ul>
+          <li>
+            サンプルコードやツールには下記を利用
+            <ul>
+              <li>
+                ActionScript3.0
+              <li>
+                JavaScript
+              <li>
+                perl
+            </ul>
+          <li>
+            このスライド及びサンプルコードはgithubで公開予定です
+        </ul>
+      </article>
+
+      <article>
+        <h3>
+          アジェンダ
+        </h3>
+        <ul>
+          <li>
+            SWFのベクター表現
+          <li>
+            Shapeタグの詳解
+          <li>
+            簡単なSWFをSVGにコンバートしてみよう
+        </ul>
+      </article>
+
+      <article>
+        <h2>
+          SWFのベクター表現
+        </h2>
+      </article>
+
+      <article>
+        <h3>
+          SWFでベクターを描画するアクションは３つだけ 
+        </h3>
+        <ul>
+          <li>
+            <h4>moveTo()</h4> 
+            <p>ポイントの移動<p>
+          <li>
+            <h4>lineTo()</h4>
+            <p>直線を引く</p>
+          <li>
+            <h4>curveTo()</h4>
+            <p>二次ベジェ曲線</p>
+        </ul>
+      </article>
+
+      <article>
+        <h3>
+          正方形を書いてみよう
+        </h3>
+
+        <table>
+          <tr>
+            <td>
+              <img src="images/rect.png">
+            <td>
+              <pre class="innertable">
+// drawRectを使う
+public function draw(): void 
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.lineStyle(4, 0x0000ff);
+    shape.graphics.beginFill(0xff0000, 1.0);
+    shape.graphics.drawRect(50, 70, 140, 140);
+
+    addChild(shape);
+}
+              </pre>
+            </td>
+          </tr>
+        </table>
+        
+      </article>
+      
+      <article>
+        <h3>
+          正方形を書いてみよう
+        </h3>
+
+        <table>
+          <tr>
+            <td>
+              <img src="images/rect_geo.png">
+            <td>
+              <pre class="innertable">
+// SWFで使える機能のみを使う
+public function lineTo(): Shape 
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.lineStyle(4, 0x0000ff);
+    shape.graphics.beginFill(0xff0000, 1.0);
+
+    shape.graphics.moveTo(50, 70);
+    shape.graphics.lineTo(50, 210);
+    shape.graphics.lineTo(190, 210);
+    shape.graphics.lineTo(190, 70);
+    shape.graphics.lineTo(50, 70);
+
+    addChild(shape);
+}
+              </pre>
+            </td>
+          </tr>
+        </table>
+      </article>
+
+      <article>
+        <h3>
+          円を書いてみよう
+        </h3>
+
+        <table>
+          <tr>
+            <td>
+              <img src="images/circle.png">
+            <td>
+              <pre class="innertable">
+// drawCircleを使う
+public function draw(): void 
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.lineStyle(4, 0x0000ff);
+    shape.graphics.beginFill(0xff0000, 1.0);
+    shape.graphics.drawCircle(100, 100, 90);
+
+    addChild(shape);
+}
+              </pre>
+            </td>
+          </tr>
+        </table>
+        
+      </article>
+
+      <article class="smaller">
+        <h3>
+          円を書いてみよう
+        </h3>
+
+        <table>
+          <tr>
+            <td>
+              <object type="application/x-shockwave-flash" data="sample/Circle_point.swf" width="240" height="280">
+                <param name="movie" value="sample/Circle_point.swf"/>
+                <param name="play" value="true"/>
+                <param name="loop" value="false"/>
+                <param name="quality" value="high"/>
+                <param name="loop" value="false"/>
+              </object>
+            </td>
+            <td>
+              <pre class="innertable">
+// SWFで使えるものだけを使う
+public function draw(): void 
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.lineStyle(4, 0x0000ff);
+    shape.graphics.beginFill(0xff0000, 1.0);
+
+    shape.graphics.moveTo(163.60, 163.60);
+    shape.graphics.curveTo(137.30, 190.00, 100.00, 190.00);
+    shape.graphics.curveTo(62.65, 190.00, 36.30, 163.60);
+    shape.graphics.curveTo(10.00, 137.30, 10.00, 100.00);
+    shape.graphics.curveTo(10.00, 62.65, 36.30, 36.30);
+    shape.graphics.curveTo(62.65, 10.00, 100.00, 10.00);
+    shape.graphics.curveTo(137.30, 10.00, 163.60, 36.30);
+    shape.graphics.curveTo(190.00, 62.65, 190.00, 100.00);
+    shape.graphics.curveTo(190.00, 137.30, 163.60, 163.60);
+
+    addChild(shape);
+}
+              </pre>
+            </td>
+          </tr>
+        </table>
+      </article>
+
+      <article>
+        <h3>
+          SWFフォーマットにおけるベクターデータのまとめ
+        </h3>
+
+        <ul>
+          <li>
+            どんな図形も moveTo() lineTo() curveTo() で表現
+          <li>
+            円や楕円はベジェ曲線で近似
+          <li>
+            塗り､線のパターンを選べる
+        </ul>
+        <div class="build"> 
+          <p class="big">⇒ <br>
+          <b>moveTo</b>、<b>lineTo</b>、<b>curveTo</b>、<b>塗り</b>、<b>線</b><br>
+          があれば、どんな言語にも<br>
+          <b class="red">必ずコンバートできる</b><p>
+        </div> 
+      </article>
+
+      <article>
+        <h3>
+         コンバートしてみよう 
+        </h3>
+        <table>
+          <tr>
+            <td>
+              <img src="images/sample_fla.png" />
+            <td>
+              <ul>
+                <li>
+                  1フレーム×1レイヤー
+                <li>
+                  シンボル化していない
+                <li>
+                  隣接する色は無い
+                <li>
+                  良くあるグラフィックの軽量化をしている
+                  <ul>
+                    <li>
+                      Flashの機能で分解
+                    <li>
+                      最適化して保存
+                  </ul>
+              </ul>
+        </table>
+      </article>
+
+      <article class="smaller">
+        <h3>
+         コンバートしてみよう
+        </h3>
+
+        <p><b>swfdumpで中身を見てみよう</b></p>
+        <code>
+          $ swfdump --shapes sample/sample.swf
+        </code>
+        <div class="build">
+          <pre style="font-size: 13px; line-height: 15px; margin-top: 10px;">
+[002]       146 DEFINESHAPE defines id 0001
+                 | fillstyles(02)        linestyles(00)
+                 | 1 ) SOLID 000066ff
+                 | 2 ) SOLID ff0000ff
+                 |
+                 | fill: 00/02 line:00 - moveTo 189.85 69.05
+                 | fill: 00/02 line:00 - splineTo (199.95 79.15) 199.95 93.45
+                 | fill: 00/02 line:00 - splineTo (199.95 107.75) 189.85 117.85
+                 | fill: 00/02 line:00 - splineTo (180.55 127.15) 167.75 127.90
+                 | fill: 00/02 line:00 - lineTo 209.70 200.65
+                 | fill: 00/02 line:00 - lineTo 121.25 200.65
+                 | fill: 00/02 line:00 - lineTo 163.30 127.90
+                 | fill: 00/02 line:00 - splineTo (150.40 127.20) 141.05 117.85
+                 | fill: 00/02 line:00 - splineTo (130.95 107.75) 130.95 93.45
+                 | fill: 00/02 line:00 - splineTo (130.95 79.15) 141.05 69.05
+                 | fill: 00/02 line:00 - splineTo (151.15 58.95) 165.45 58.95
+                 | fill: 00/02 line:00 - splineTo (179.75 58.95) 189.85 69.05
+                 | fill: 00/01 line:00 - moveTo 106.00 93.45
+                 | fill: 00/01 line:00 - splineTo (106.00 107.75) 95.90 117.85
+                 | fill: 00/01 line:00 - splineTo (90.50 123.25) 83.95 125.75
+                 | fill: 00/01 line:00 - lineTo 116.20 125.75
+                 | fill: 00/01 line:00 - lineTo 72.00 202.35
+                 | fill: 00/01 line:00 - lineTo 27.75 125.75
+                 | fill: 00/01 line:00 - lineTo 59.10 125.75
+                 | fill: 00/01 line:00 - splineTo (52.50 123.25) 47.10 117.85
+                 | fill: 00/01 line:00 - splineTo (37.00 107.75) 37.00 93.45
+                 | fill: 00/01 line:00 - splineTo (37.00 79.15) 47.10 69.05
+                 | fill: 00/01 line:00 - splineTo (57.20 58.95) 71.50 58.95
+                 | fill: 00/01 line:00 - splineTo (85.80 58.95) 95.90 69.05
+                 | fill: 00/01 line:00 - splineTo (106.00 79.15) 106.00 93.45
+                 |
+          </pre>
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+         対応するコードを書いてみよう
+        </h3>
+
+        <p><b>ActionScript3.0で書いてみよう</b></p>
+        <div class="build">
+          <pre style="font-size: 13px; line-height: 15px; margin-top: 10px;">
+public function shape(): Shape
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.beginFill(0xff0000, 1); // 2
+    
+    shape.graphics.moveTo(189.85, 69.05); // fill 00/02, line 00
+    shape.graphics.curveTo(199.95, 79.15, 199.95, 93.45); // fill 00/02, line 00
+    shape.graphics.curveTo(199.95, 107.75, 189.85, 117.85); // fill 00/02, line 00
+    shape.graphics.curveTo(180.55, 127.15, 167.75, 127.90); // fill 00/02, line 00
+    shape.graphics.lineTo(209.70, 200.65); // fill 00/02, line 00
+    shape.graphics.lineTo(121.25, 200.65); // fill 00/02, line 00
+    shape.graphics.lineTo(163.30, 127.90); // fill 00/02, line 00
+    shape.graphics.curveTo(150.40, 127.20, 141.05, 117.85); // fill 00/02, line 00
+    shape.graphics.curveTo(130.95, 107.75, 130.95, 93.45); // fill 00/02, line 00
+    shape.graphics.curveTo(130.95, 79.15, 141.05, 69.05); // fill 00/02, line 00
+    shape.graphics.curveTo(151.15, 58.95, 165.45, 58.95); // fill 00/02, line 00
+    shape.graphics.curveTo(179.75, 58.95, 189.85, 69.05); // fill 00/02, line 00
+
+    shape.graphics.beginFill(0x000066, 1); // 1
+    shape.graphics.moveTo(106.00, 93.45); // fill 00/01, line 00
+    shape.graphics.curveTo(106.00, 107.75, 95.90, 117.85); // fill 00/01, line 00
+    shape.graphics.curveTo(90.50, 123.25, 83.95, 125.75); // fill 00/01, line 00
+    shape.graphics.lineTo(116.20, 125.75); // fill 00/01, line 00
+    shape.graphics.lineTo(72.00, 202.35); // fill 00/01, line 00
+    shape.graphics.lineTo(27.75, 125.75); // fill 00/01, line 00
+    shape.graphics.lineTo(59.10, 125.75); // fill 00/01, line 00
+    shape.graphics.curveTo(52.50, 123.25, 47.10, 117.85); // fill 00/01, line 00
+    shape.graphics.curveTo(37.00, 107.75, 37.00, 93.45); // fill 00/01, line 00
+    shape.graphics.curveTo(37.00, 79.15, 47.10, 69.05); // fill 00/01, line 00
+    shape.graphics.curveTo(57.20, 58.95, 71.50, 58.95); // fill 00/01, line 00
+    shape.graphics.curveTo(85.80, 58.95, 95.90, 69.05); // fill 00/01, line 00
+    shape.graphics.curveTo(106.00, 79.15, 106.00, 93.45); // fill 00/01, line 00
+
+    return shape;
+}
+          </pre>
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+         対応するコードを書いてみよう
+        </h3>
+
+        <p><b>JavaScriptでも書いてみよう</b></p>
+        <div class="build">
+          <pre style="font-size: 13px; line-height: 15px; margin-top: 10px;">
+onload = function() {
+  var canvas = document.getElementById('shape');
+  var ctx    = canvas.getContext('2d');
+
+  ctx.beginPath();
+  ctx.fillStyle = '#ff0000'; // 2
+  ctx.moveTo(189.85, 69.05); // fill 00/02, line 00
+  ctx.quadraticCurveTo(199.95, 79.15, 199.95, 93.45); // fill 00/02, line 00
+  ctx.quadraticCurveTo(199.95, 107.75, 189.85, 117.85); // fill 00/02, line 00
+  ctx.quadraticCurveTo(180.55, 127.15, 167.75, 127.90); // fill 00/02, line 00
+  ctx.lineTo(209.70, 200.65); // fill 00/02, line 00
+  ctx.lineTo(121.25, 200.65); // fill 00/02, line 00
+  ctx.lineTo(163.30, 127.90); // fill 00/02, line 00
+  ctx.quadraticCurveTo(150.40, 127.20, 141.05, 117.85); // fill 00/02, line 00
+  ctx.quadraticCurveTo(130.95, 107.75, 130.95, 93.45); // fill 00/02, line 00
+  ctx.quadraticCurveTo(130.95, 79.15, 141.05, 69.05); // fill 00/02, line 00
+  ctx.quadraticCurveTo(151.15, 58.95, 165.45, 58.95); // fill 00/02, line 00
+  ctx.quadraticCurveTo(179.75, 58.95, 189.85, 69.05); // fill 00/02, line 00
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.fillStyle = '#000066'; // 1
+  ctx.moveTo(106.00, 93.45); // fill 00/01, line 00
+  ctx.quadraticCurveTo(106.00, 107.75, 95.90, 117.85); // fill 00/01, line 00
+  ctx.quadraticCurveTo(90.50, 123.25, 83.95, 125.75); // fill 00/01, line 00
+  ctx.lineTo(116.20, 125.75); // fill 00/01, line 00
+  ctx.lineTo(72.00, 202.35); // fill 00/01, line 00
+  ctx.lineTo(27.75, 125.75); // fill 00/01, line 00
+  ctx.lineTo(59.10, 125.75); // fill 00/01, line 00
+  ctx.quadraticCurveTo(52.50, 123.25, 47.10, 117.85); // fill 00/01, line 00
+  ctx.quadraticCurveTo(37.00, 107.75, 37.00, 93.45); // fill 00/01, line 00
+  ctx.quadraticCurveTo(37.00, 79.15, 47.10, 69.05); // fill 00/01, line 00
+  ctx.quadraticCurveTo(57.20, 58.95, 71.50, 58.95); // fill 00/01, line 00
+  ctx.quadraticCurveTo(85.80, 58.95, 95.90, 69.05); // fill 00/01, line 00
+  ctx.quadraticCurveTo(106.00, 79.15, 106.00, 93.45); // fill 00/01, line 00
+  ctx.fill();
+};
+          </pre>
+        </div>
+      </article>
+
+      <article>
+        <h3>
+         対応するコードを書いてみよう
+        </h3>
+
+        <h4>完成</h4>
+        <iframe src='script/js/Sample.html'></iframe>
+      </article>
+
+      <article>
+        <h2>
+          Shapeの詳解
+        </h2>
+      </article>
+
+      <article>
+        <h3>
+          Shapeタグの種類
+        </h3>
+
+        <table>
+          <tr>
+            <th>
+              DefineShape
+            <td>
+              初期
+              <br>
+              ≧ SWF1
+          <tr>
+            <th>
+              DefineShape2
+            <td>
+              Styleを255個に増量
+              <br>
+              ≧ SWF2
+          <tr>
+            <th>
+              DefineShape3
+            <td>
+              アルファをサポート
+              <br>
+              ≧ SWF3
+          <tr>
+            <th>
+              DefineShape4
+            <td>
+              線の種類が増加
+              <br>
+              ≧ SWF8
+        </table>
+        
+      </article>
+      
+      <article>
+        <h3>
+          DefineShape*タグの構造
+        </h3>
+        <table>
+          <tr>
+            <th>
+              Header
+            <td>
+              Tag type = 2, 22, 32, 83
+          <tr>
+            <th>
+              ShapeId
+            <td>
+              characterId (swfの中でUniq)
+          <tr>
+            <th>
+              ShapeBounds
+            <td>
+              矩形の境界 中心点とか (0,0) の位置とかが決まる
+          <tr>
+            <th>
+              Shapes
+            <td>
+              ベクターデータに関する諸々の情報
+              <table class="smaller">
+                <tr>
+                  <th>
+                    FillStyles
+                  <td>
+                    塗りの情報
+                <tr>
+                  <th>
+                    LineStyles
+                  <td>
+                    線の情報
+                <tr>
+                  <th>
+                    NumFillBits
+                  <td>
+                    FillStyleのインデックスサイズ
+                <tr>
+                  <th>
+                    NumLineBits
+                  <td>
+                    LineStyleのインデックスサイズ
+                <tr>
+                  <th>
+                    ShapeRecords
+                  <td>
+                    moveToとか
+              </table>
+        </table>
+      </article>
+      
+      <article>
+        <h3>
+          FillStyle (塗り)
+        </h3>
+
+        <table>
+          <tr>
+            <th>
+              FillStyleType 
+            <td>
+              0x00 = 塗りつぶし<br>
+              0x10-0x13 = グラデーション<br>
+              0x40-0x43 = 画像
+          <tr>
+            <th>
+              Color 
+            <td>
+              RGB(Shape1,2) RGBA(Shape3)
+          <tr>
+            <th>
+              GradientMatrix 
+            <td>
+              グラデーションの配置
+          <tr>
+            <th>
+              Gradient 
+            <td>
+              グラデーションの情報
+          <tr>
+            <th>
+              BitmapId 
+            <td>
+              画像のcharacterId
+          <tr>
+            <th>
+              BitmapMatrix
+            <td>
+              画像のMatrix
+        </table>
+      </article>
+
+      <article>
+        <h3>
+          LineStyle (線)
+        </h3>
+
+        <table>
+          <tr>
+            <th>
+              Width 
+            <td>
+              線の太さ
+          <tr>
+            <th>
+              Color 
+            <td>
+              RGB(Shape1,2) RGBA(Shape3)
+        </table>
+
+        <p>SWF8以降のlineStyle2で項目が増えますが省略します</p>
+      </article>
+
+      <article>
+        <h3>
+          ShapeRecord
+        </h3>
+
+        <p>以下の4種類で構成</p>
+
+        <table>
+          <tr>
+            <th>
+              EndShapeRecord 
+            <td>
+              レコードの終了
+          <tr>
+            <th>
+              StyleChangeRecord 
+            <td>
+              <ul>
+                <li>
+                  新しいStyleListの更新
+                <li>
+                  Styleの変更
+                <li>
+                  moveTo 
+              </ul>
+          <tr>
+            <th>
+              StraightEdgeRecord 
+            <td>
+              lineTo
+          <tr>
+            <th>
+              CurvedEdgeRecord 
+            <td>
+              curveTo
+        </table>
+
+      </article>
+
+      <article>
+        <h3>Shapesの構成</h3>
+
+        <table>
+          <tr>
+            <td>
+              <img src="images/shapes.png">
+            <td>
+              <ul>
+                <li>
+                  予め(fill|line)Styleを定義
+                <li>
+                  (fill|line)Styleは複数種類定義できる
+                <li>
+                  shapeRecordでは色の変更や線の変更をすることができる
+                <li>
+                  定義済みスタイルはshapeRecordで更新することができる
+                <li>
+                  shapeRecordは(fill|line)Styleのインデックスを示しStyleを適用する
+              </ul>
+        </table>
+
+      </article>
+
+      <article class="smaller">
+        <h3>正方形のタグを見てみよう</h3>
+
+        <pre>
+DefineShape[2]: 
+    ShapeID: 1
+    ShapeBounds: { Xmin: 960, Xmax: 3840, Ymin: 1360, Ymax: 4240 }
+    Shapes: 
+        FillStyles: 
+            [1] FILLSTYLE1: { Color: #ff0000 }
+        LineStyles: 
+            [1] LINESTYLE1: { With: 80, Color: #0000ff }
+        ShapeRecords: 
+            StyleChangeRecord: MoveTo( 3800, 4200 ), FillStyle1: 1, LineStyle: 1
+            StraightEdgeRecord: LineTo( -2800, 0 )
+            StraightEdgeRecord: LineTo( 0, -2800 )
+            StraightEdgeRecord: LineTo( 2800, 0 )
+            StraightEdgeRecord: LineTo( 0, 2800 )
+            EndShapeRecord: </pre>
+
+        <ul> 
+          <li>
+            パスの座標は <b>相対値</b><br>
+            絶対値に直す場合は (x, y) = (x + deltaX, y + deltaY)
+          <li>
+            座標やサイズは <b>1px = 20</b> の <b>整数値</b>
+          <li>
+            (line|fill)Styleのインデックスは <b>1</b> から始まる
+          <li>
+            一度セットしたStyleは変更されるか、Style = 0 でリセットされるまで有効 
+        </ul> 
+      </article>
+
+      <article>
+        <h3>相対値to絶対値</h3>
+
+        <p>パスの座標は<b>相対値</b></p>
+        <p>絶対値に変更するには</p>
+        <pre>(toX', toY') = (x + toX, y + toY)</pre>
+        <p>curveToではどうなるか</p>
+        <pre>
+(controleX', controleY') = (x + controleX, y + controleY)
+(toX', toY') = (x + controleX + toX, y + controleY + toY)</pre>
+      </article>
+
+      <article>
+        <h3>この図形を再現してみよう</h3>
+        <img src="images/fillStyle.png" class="centered">
+      </article>
+
+      <article class="smaller">
+        <h3>この図形を再現してみよう</h3>
+        <h4>swfdump</h4>
+        <pre>
+[002]        65 DEFINESHAPE defines id 0001
+                 | fillstyles(03)        linestyles(00)
+                 | 1 ) SOLID ff0000ff    
+                 | 2 ) SOLID ffff00ff    
+                 | 3 ) SOLID 0000ccff    
+                 |
+                 | fill: 02/03 line:00 - moveTo 161.00 101.00
+                 | fill: 02/03 line:00 - lineTo 161.00 156.00
+                 | fill: 02/03 line:00 - lineTo 103.00 156.00
+                 | fill: 02/00 line:00 - lineTo 103.00 210.00
+                 | fill: 02/00 line:00 - lineTo 212.00 210.00
+                 | fill: 02/00 line:00 - lineTo 212.00 101.00
+                 | fill: 02/00 line:00 - lineTo 161.00 101.00
+                 | fill: 01/00 line:00 - lineTo 161.00 44.00
+                 | fill: 01/00 line:00 - lineTo 49.00 44.00
+                 | fill: 01/00 line:00 - lineTo 49.00 156.00
+                 | fill: 01/00 line:00 - lineTo 103.00 156.00
+                 | fill: 01/03 line:00 - lineTo 103.00 101.00
+                 | fill: 01/03 line:00 - lineTo 161.00 101.00
+        </pre>
+      </article>
+
+      <article class="smaller">
+        <h3>この図形を再現してみよう</h3>
+        <h4>ActionScript</h4>
+        <pre>
+public function draw(): void 
+{
+    var shape: Shape = new Shape();
+
+    shape.graphics.beginFill(0xffff00, 1.0);
+
+    shape.graphics.moveTo( 161.00, 101.00 ); // 2, 3
+    shape.graphics.lineTo( 161.00, 156.00 ); // 2, 3
+    shape.graphics.lineTo( 103.00, 156.00 ); // 2, 3
+    shape.graphics.lineTo( 103.00, 210.00 ); // 2, 0
+    shape.graphics.lineTo( 212.00, 210.00 ); // 2, 0
+    shape.graphics.lineTo( 212.00, 101.00 ); // 2, 0
+    shape.graphics.lineTo( 161.00, 101.00 ); // 2, 0
+
+    shape.graphics.beginFill(0xff0000, 1.0);
+
+    shape.graphics.lineTo( 161.00, 44.00  ); // 1, 0
+    shape.graphics.lineTo( 49.00 , 44.00  ); // 1, 0
+    shape.graphics.lineTo( 49.00 , 156.00 ); // 1, 0
+    shape.graphics.lineTo( 103.00, 156.00 ); // 1, 0
+    shape.graphics.lineTo( 103.00, 101.00 ); // 1, 3
+    shape.graphics.lineTo( 161.00, 101.00 ); // 1, 3
+    addChild( shape );
+}
+        </pre>
+      </article>
+
+      <article>
+        <h3>fillStyle0 & fillStyle1 の画像を見せる</h3>
+        <h4>完成？？？</h4>
+        <img src="images/FillStyle_before.png" class="centered">
+      </article>
+
+      <article>
+        <h3>再現できない!!</h3>
+        <ul class="build">
+          <li>
+            <b>あれ？真ん中の青どこいった？</b>
+          <li>
+            <b>lineToがたりない？？？</b>
+          <li>
+            <b>いや、頂点の数はあっている</b>
+          <li>
+            <b>何が起こった？</b>
+          <li>
+            <b>これ何？ → 「fill: <span class="red">02/03</span>」</b>
+            <pre>
+fill: 02/03 line:00 - moveTo 161.00 101.00
+fill: 01/03 line:00 - lineTo 103.00 101.00</pre>
+        </ul>
+      </article>
+
+      <article class="smaller">
+        <h3>タグをしっかりと見てみよう</h3>
+        <pre>
+DefineShape[2]:
+    ShapeID: 1
+    ShapeBounds: { Xmin: 980, Xmax: 4240, Ymin: 880, Ymax: 4200 }
+    Shapes:
+        FillStyles:
+            [1] FILLSTYLE1: { Color: #ff0000 }
+            [2] FILLSTYLE1: { Color: #ffff00 }
+            [3] FILLSTYLE1: { Color: #0000cc }
+        LineStyles:
+        ShapeRecords:
+            StyleChangeRecord: MoveTo( 3220, 2020 ), FillStyle0: 2, FillStyle1: 3
+            StraightEdgeRecord: LineTo( 0, 1100 )
+            StraightEdgeRecord: LineTo( -1160, 0 )
+            StyleChangeRecord: FillStyle1: 0
+            StraightEdgeRecord: LineTo( 0, 1080 )
+            StraightEdgeRecord: LineTo( 2180, 0 )
+            StraightEdgeRecord: LineTo( 0, -2180 )
+            StraightEdgeRecord: LineTo( -1020, 0 )
+            StyleChangeRecord: FillStyle0: 1
+            StraightEdgeRecord: LineTo( 0, -1140 )
+            StraightEdgeRecord: LineTo( -2240, 0 )
+            StraightEdgeRecord: LineTo( 0, 2240 )
+            StraightEdgeRecord: LineTo( 1080, 0 )
+            StyleChangeRecord: FillStyle1: 3
+            StraightEdgeRecord: LineTo( 0, -1100 )
+            StraightEdgeRecord: LineTo( 1160, 0 )
+            EndShapeRecord:
+        </pre>
+      </article>
+
+      <article class="build">
+        <h3>気づいたこと</h3>
+
+          <p class="big"><b>fillStyle0</b>と<b>fillStyle1</b>と<b class="red">２種類</b>あり両方にStyleが設定されている</p>
+          <p class="big"><img src="images/yusaku.jpg" height="280" align="right"><b>なんじゃこりゃあ？</b></p>
+
+
+      </article>
+
+      <article class="fill">
+        <img src="images/fillStyle_desc1.png" class="centered">
+        <div class="build">
+          <img src="images/fillStyle_desc2.png" class="centered">
+        </div>
+      </article>
+
+      <article>
+        <h3>fillStyle0とfillStyle1</h3>
+
+        <table>
+          <tr>
+            <th>
+              fillStyle0
+            <td>
+              進行方向右側の塗り
+          <tr>
+            <th>
+              fillStyle1
+            <td>
+              進行方向左側の塗り
+        </table>
+
+        <ul>
+          <li>
+            隣接する塗りを１回で実行可能
+          <li>
+            パスサイズを削減(moveToの分は減る?)
+          <li>
+            重ね塗りをしない
+        </ul>
+      </article>
+
+      <article class="smaller">
+        <h3>fillStyle0 & fillStyle1をふまえて書き直してみる</h3>
+
+        <table>
+          <tr>
+            <td>
+              <table style="font-size: 15px;margin-top: 10px">
+                <tr>
+                  <th>
+                    fill[1] #ff0000
+                  <th>
+                    fill[2] #ffff00
+                  <th>
+                    fill[3] #0000cc
+                <tr>
+                  <td>
+                  <td>
+                    MoveTo(161, 101) (0)
+                  <td>
+                    MoveTo(161, 101) (1)
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(161, 156) (0)
+                  <td>
+                    LineTo(161, 156) (1)
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(103, 156) (0)
+                  <td>
+                    LineTo(103, 156) (1)
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(103, 210) (0)
+                  <td>
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(212, 210) (0)
+                  <td>
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(212, 101) (0)
+                  <td>
+                <tr>
+                  <td>
+                  <td>
+                    LineTo(161, 101) (0)
+                  <td>
+                <tr>
+                  <td>
+                    LineTo(161, 44) (0)
+                  <td>
+                  <td>
+                <tr>
+                  <td>
+                    LineTo(49, 44) (0)
+                  <td>
+                  <td>
+                <tr>
+                  <td>
+                    LineTo(49, 156) (0)
+                  <td>
+                  <td>
+                <tr>
+                  <td>
+                    LineTo(103, 156) (0)
+                  <td>
+                  <td>
+                <tr>
+                  <td>
+                    LineTo(103, 101) (0)
+                  <td>
+                  <td>
+                    LineTo(103, 101) (1)
+                <tr>
+                  <td>
+                    LineTo(161, 101) (0)
+                  <td>
+                  <td>
+                    LineTo(161, 101) (1)
+              </table>
+            </td>
+            <td>
+              <object type="application/x-shockwave-flash" data="sample/fillStyleB.swf" width="240" height="280">
+                <param name="movie" value="sample/fillStyleB.swf"/>
+                <param name="play" value="true"/>
+                <param name="loop" value="true"/>
+                <param name="quality" value="high"/>
+              </object>
+              <ul>
+                <li>
+                  fillStyle0 = 右
+                <li>
+                  fillStyle1 = 左 
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </article>
+
+      <article>
+        <h3>fillStyle0 & fillStyle1をふまえて書き直してみる</h3>
+        <pre>
+public function draw(): void 
+{
+    var shape: Shape = new Shape();
+
+    // 略
+
+    // fillStyle0 の分を追加
+    shape.graphics.beginFill(0x0000cc, 1.0);
+    shape.graphics.moveTo( 161.00, 101.00 ); // 2, 3
+    shape.graphics.lineTo( 161.00, 156.00 ); // 2, 3
+    shape.graphics.lineTo( 103.00, 156.00 ); // 2, 3
+    shape.graphics.lineTo( 103.00, 101.00 ); // 1, 3
+    shape.graphics.lineTo( 161.00, 101.00 ); // 1, 3
+
+    addChild( shape );
+}
+        </pre>
+      </article>
+
+      <article>
+        <h3>ここまでで基本的なShapeをコンバートしました</h3>
+
+        <div class="build">
+
+          <p class="big" style="margin-top:50px">しかし</p>
+
+          <ul>
+            <li>
+              実際には1レイヤーだけのswfなんて存在しない
+            <li>
+              複数のShapeを組み合わせてつかう
+            <li>
+              Shapeを配置する為にSpriteとルートオブジェクトが持っているのが<b>PlaceObject</b>
+          </ul>
+
+        </div>
+      </article>
+
+      <article>
+        <h3>PlaceObject</h3>
+
+        <table>
+          <tr>
+            <th>
+              Depth 
+            <td>
+              配置位置<br>
+              DisplayObjectContainer::addChildAt() のindexに当たる<br>
+              またタイムラインの位置(小さいほど奥)
+          <tr>
+            <th>
+              CharacterId
+            <td>
+              Define*を指し示すID
+          <tr>
+            <th>
+              Matrix 
+            <td>
+              配置、拡大・縮小、回転
+          <tr>
+            <th>
+              ColorTransform 
+            <td>
+              色の変形
+          <tr>
+            <th>
+              Name 
+            <td>
+              インスタンス名(PlaceObject2)
+          <tr>
+            <th>
+              Ratio 
+            <td>
+              Morphingの比率(PlaceObject2)
+          <tr>
+            <th>
+              Cripp*
+            <td>
+              Crippingに関する情報(PlaceObject2)
+        </table>
+      </article>
+
+      <article>
+        <h3>PlaceObject</h3>
+
+        <h4>ActionSCriptの対応</h4>
+
+        <table>
+          <tr>
+            <th>
+              CharacterId
+            <td>
+              Define*.characterIdを取り出す
+          <tr>
+            <th>
+              Depth
+            <td>
+              DisplayObjectContainer.addChildAt
+          <tr>
+            <th>
+              Matrix
+            <td>
+              DisplayObject.transform.matrix
+          <tr>
+            <th>
+              ColorTransform
+            <td>
+              DisplayObject.transform.colorTransform
+        </table>
+
+      </article>
+
+      <article>
+        <h3>少し複雑なベクターをASにしてみよう</h3>
+        <table>
+          <tr>
+            <td rowspan="2">
+              <img src="images/konchi_fra.png">
+            <td>
+              <ul>
+                <li>
+                  パーツ毎にシンボル化している
+                <li>
+                  MovieCrip(Shape)の入れ子もある
+              </ul>
+          <tr>
+            <td style="vertical-align:middle;">
+              <img src="images/konchi_parts.png" class="centered">
+        </table>
+      </article>
+
+      <article class="smaller">
+        <h3>ActionScript3.0での配置のしかた</h3>
+        <pre>
+DEFINESPRITE defines id 0002
+         PLACEOBJECT2 places id 0001 at depth 0002
+          | Matrix             
+          | 1.000 0.000 -57.75 
+          | 0.000 1.000  15.30 
+         SHOWFRAME 1 (00:00:00,000)
+         END
+PLACEOBJECT2 places id 0002 at depth 0001 name "ar"
+ | Matrix             
+ | 1.000 0.000 157.20 
+ | 0.000 1.000 141.35 </pre>
+        <pre>
+var shape_0001:Shape = create_shape_0002();
+shape_0001.transform.matrix = new Matrix(1, 0, 0, 1, -57.75, 15.30);
+
+var sprite_0002:Sprite = new Sprite();
+sprite_0002.addChildAt(shape_0001, 2);
+
+sprite_0002.transform.matrix = new Matrix(1, 0, 0, 1, 157.20, 141.35);
+addChildAt(sprite_0002, 1);</pre>
+      </article>
+
+      <article>
+        <h3>Shapeその他の要素</h3>
+
+        <h4>Gradient</h4>
+
+        <p>説明しきれなくてごめんなさい</p>
+
+        <h4>Bitmap</h4>
+
+        <p>説明しきれなくてごめんなさい</p>
+      </article>
+
+      <article>
+        <h2>簡単なSWFをSVGにコンバートしてみよう</h2>
+      </article>
+
+      <article>
+        <h3>利用するSVGのタグ</h3>
+        <table> 
+          <tr>
+            <th>
+              g
+            <td>
+              グループ化<br />
+              <code>&lt;g id="内部参照可能な名前" transform="matrix(Matrix)" &gt;</code>
+          <tr>
+            <th>
+              path 
+            <td>
+              パス<br />
+              <code>&lt;path d="パスの情報" fill="塗り" stroke="線の色" stroke-width="線の太さ" &gt;</code>
+              <table>
+                <tr>
+                  <th>
+                    moveTo
+                  <td>
+                    M x y 
+                <tr>
+                  <th>
+                    lineTo 
+                  <td>
+                    L x y
+                <tr>
+                  <th>
+                    curveTo 
+                  <td>
+                    Q cx cy ax ay
+              </table>
+          <tr>
+            <th>
+              use
+            <td>
+              参照<br />
+              <code>&lt;use xlink:href="#内部参照" transform="matrix(Matrix)" &gt;</code>
+        </table> 
+      </article>
+
+      <article>
+        <h3>Shapeの変換</h3>
+        <table> 
+          <tr>
+            <th>
+              Define*
+            <td>
+              g 
+          <tr>
+            <th>
+              DefineShape
+            <td>
+              path 
+          <tr>
+            <th>
+              PlaceObject 
+            <td>
+              use
+          <tr>
+            <th>
+              use
+            <td>
+              参照
+        </table> 
+      </article>
+
+      <article>
+        <h3>簡単なSWFをコンバートしてみる</h3>
+      </article>
+
+      <article>
+        <h3>ジェネレータを作ってみる</h3>
+      </article>
+
+      <article>
+        <h3>余裕があれば動かす</h3>
+      </article>
+
+      <article>
+        <h3>
+          Thank you!
+        </h3>
+        
+      </article>
+
+    </section>
+
+  </body>
+</html>

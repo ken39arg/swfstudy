@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>draw to line|curveTo</title>
+        <style>
+            table {
+                border: 1px #ccc solid;
+                border-collapse: collapse;
+            }
+            td {
+                text-align: center;
+                vertical-align: top;
+                border: 1px #ccc solid;;
+            }
+            th {
+                text-align: left;
+                vertical-align: top;
+                border: 1px #ccc solid;;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>method</th><th>draw</th><th>lineTo & curveTo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>drawRect</td>
+                    <td><canvas id="drawRect_draw" width="200" height="200"></canvas></td>
+                    <td><canvas id="drawRect_min" width="200" height="200"></canvas></td>
+                </tr>
+            </tbody>
+        </table>
+        <script>
+            onload = function(){ draw() };
+            function draw() {
+                
+                drawRect_draw();
+                drawRect_min();
+            }
+            function drawRect_draw() {
+                var canvas = document.getElementById('drawRect_draw');
+                var ctx    = canvas.getContext('2d');
+                ctx.beginPath();
+                ctx.strokeRect( 10, 10, 180, 180 );
+            }
+            function drawRect_min() {
+                var canvas = document.getElementById('drawRect_min');
+                var ctx    = canvas.getContext('2d');
+                ctx.beginPath();
+                ctx.moveTo(10, 10);
+                ctx.lineTo(10, 190);
+                ctx.lineTo(190, 190);
+                ctx.lineTo(190, 10);
+                ctx.lineTo(10, 10);
+                ctx.stroke();
+            }
+        </script>
+    </body>
+</html>
+

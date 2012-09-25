@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <script>
+      onload = function() {
+        var canvas = document.getElementById('shape');
+        var ctx    = canvas.getContext('2d');
+
+        ctx.beginPath();
+        var grad  = ctx.createLinearGradient(20,0, 220,0);
+        grad.addColorStop(0   / 255, '#ff0000');
+        grad.addColorStop(42  / 255, '#ffff00');
+        grad.addColorStop(93  / 255, '#00ff00');
+        grad.addColorStop(127 / 255, '#00ffff');
+        grad.addColorStop(170 / 255, '#0000ff');
+        grad.addColorStop(212 / 255, '#ff00ff');
+        grad.addColorStop(255 / 255, '#ff0000');
+
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.fillStyle = grad;
+        ctx.rect(20,20,200,200);
+        ctx.fill();
+        ctx.stroke();
+      };
+    </script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>ActionScript</th>
+        <th>JavaScript</th>
+      </tr>
+      <tr>
+        <td>
+          <object type="application/x-shockwave-flash" data="../as/Rainbow.swf" width="240" height="280">
+            <param name="movie" value="../as/Rainbow.swf"/>
+            <param name="play" value="true"/>
+            <param name="quality" value="high"/>
+            <param name="loop" value="false"/>
+          </object>
+        </td>
+        <td>
+          <canvas id="shape" width="240" height="280"/>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+

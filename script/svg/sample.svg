@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="280">
+  <defs>
+    <g id="cid_1" viewBox="555 1179 4194 4047">
+      <path d="M 2120 1869
+               Q 2120 1583 1918 1381 
+                 1716 1179 1430 1179 
+                 1144 1179 942 1381 
+                 740 1583 740 1869 
+                 740 2155 942 2357 
+                 1050 2465 1182 2515 
+               L 555 2515 
+                 1440 4047 
+                 2324 2515 
+                 1679 2515
+               Q 1810 2465 1918 2357 
+                 2120 2155 2120 1869" fill="#000066"/>
+      <path d="M 3797 1381 
+               Q 3595 1179 3309 1179 
+                 3023 1179 2821 1381 
+                 2619 1583 2619 1869 
+                 2619 2155 2821 2357 
+                 3008 2544 3266 2558 
+               L 2425 4013 
+                 4194 4013 
+                 3355 2558 
+               Q 3611 2543 3797 2357 
+                 3999 2155 3999 1869 
+                 3999 1583 3797 1381" fill="#ff0000"/>
+    </g>
+  </defs>
+  <g id="root" transform="scale(0.05)">
+    <g id="cid_1_f_1">
+      <use transform="matrix(1,0,0,1,0,0)" xlink:href="#cid_1"/>
+    </g>
+  </g>
+</svg>

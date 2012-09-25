@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <script>
+      onload = function() {
+        var canvas = document.getElementById('shape');
+        var ctx    = canvas.getContext('2d');
+
+        ctx.beginPath();
+        ctx.fillStyle = '#ff0000'; // 2
+        ctx.moveTo(189.85, 69.05); // fill 00/02, line 00
+        ctx.quadraticCurveTo(199.95, 79.15, 199.95, 93.45); // fill 00/02, line 00
+        ctx.quadraticCurveTo(199.95, 107.75, 189.85, 117.85); // fill 00/02, line 00
+        ctx.quadraticCurveTo(180.55, 127.15, 167.75, 127.90); // fill 00/02, line 00
+        ctx.lineTo(209.70, 200.65); // fill 00/02, line 00
+        ctx.lineTo(121.25, 200.65); // fill 00/02, line 00
+        ctx.lineTo(163.30, 127.90); // fill 00/02, line 00
+        ctx.quadraticCurveTo(150.40, 127.20, 141.05, 117.85); // fill 00/02, line 00
+        ctx.quadraticCurveTo(130.95, 107.75, 130.95, 93.45); // fill 00/02, line 00
+        ctx.quadraticCurveTo(130.95, 79.15, 141.05, 69.05); // fill 00/02, line 00
+        ctx.quadraticCurveTo(151.15, 58.95, 165.45, 58.95); // fill 00/02, line 00
+        ctx.quadraticCurveTo(179.75, 58.95, 189.85, 69.05); // fill 00/02, line 00
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.fillStyle = '#000066'; // 1
+        ctx.moveTo(106.00, 93.45); // fill 00/01, line 00
+        ctx.quadraticCurveTo(106.00, 107.75, 95.90, 117.85); // fill 00/01, line 00
+        ctx.quadraticCurveTo(90.50, 123.25, 83.95, 125.75); // fill 00/01, line 00
+        ctx.lineTo(116.20, 125.75); // fill 00/01, line 00
+        ctx.lineTo(72.00, 202.35); // fill 00/01, line 00
+        ctx.lineTo(27.75, 125.75); // fill 00/01, line 00
+        ctx.lineTo(59.10, 125.75); // fill 00/01, line 00
+        ctx.quadraticCurveTo(52.50, 123.25, 47.10, 117.85); // fill 00/01, line 00
+        ctx.quadraticCurveTo(37.00, 107.75, 37.00, 93.45); // fill 00/01, line 00
+        ctx.quadraticCurveTo(37.00, 79.15, 47.10, 69.05); // fill 00/01, line 00
+        ctx.quadraticCurveTo(57.20, 58.95, 71.50, 58.95); // fill 00/01, line 00
+        ctx.quadraticCurveTo(85.80, 58.95, 95.90, 69.05); // fill 00/01, line 00
+        ctx.quadraticCurveTo(106.00, 79.15, 106.00, 93.45); // fill 00/01, line 00
+        ctx.fill();
+      };
+    </script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>元のSWF</th>
+        <th>ActionScript</th>
+        <th>JavaScript</th>
+      </tr>
+      <tr>
+        <td>
+          <object type="application/x-shockwave-flash" data="../../sample/sample.swf" width="240" height="280">
+            <param name="movie" value="../../sample/sample.swf"/>
+            <param name="play" value="true"/>
+            <param name="loop" value="false"/>
+            <param name="quality" value="high"/>
+            <param name="loop" value="false"/>
+          </object>
+        </td>
+        <td>
+          <object type="application/x-shockwave-flash" data="../as/Sample.swf" width="240" height="280">
+            <param name="movie" value="../as/Sample.swf"/>
+            <param name="play" value="true"/>
+            <param name="loop" value="false"/>
+            <param name="quality" value="high"/>
+            <param name="loop" value="false"/>
+          </object>
+        </td>
+        <td>
+          <canvas id="shape" width="240" height="280"/>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+
